@@ -1,0 +1,18 @@
+* EXCEPTION:
+* ERROR - :any method missing on ~Array~.
+
+#+begin_src ~Array#inspect~
+[]
+#+end_src ~Array#inspect~
+
+
+
+The method named
+  :any
+doesn't exist on [Array, #<Class:#<Array:0x24c62c50>>, Enumerable].
+
+(suggestions above)
+** Backtrace:
+*** app/main.rb:9:in calc_physics
+*** app/main.rb:7:in calc_physics
+*** app/main.rb:35:in tick
