@@ -1,14 +1,18 @@
 def init args
   args.state.falling = []
   args.state.landed = []
+  args.state.heights = Array.new(1280,0)
 end
 
 def calc_physics args
   args.state.falling.each do |b|
     b.y -= b.vy
-    if b.y <= 0 or args.geometry.find_all_intersect_rect(b, args.state.landed).any?
+    if args.state.heights[b.x...b.x+b.w].any?{|h| b.y <= h}
       b.vy = 0
       args.state.landed << b
+      args.state.heights[b.x...b.x+b.w].each_with_index do |h,i|
+        args.state.heights[i+b.x] += b.h
+      end
     end
   end
   args.state.falling.reject!{|f| f.vy <= 0}
@@ -33,6 +37,7 @@ def tick args
   end
 
   if args.inputs.keyboard.c
+    puts args.state.falling.size
     puts args.state.landed.size
   end
 
