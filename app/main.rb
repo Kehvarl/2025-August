@@ -20,7 +20,7 @@ end
 
 def add_block args
   args.state.falling << {
-    x: rand(1280), y: rand(50) + 670, w: 8, h: 8,
+    x: rand(1280), y: rand(50) + 670, w: 4, h: 4,
     path: "sprites/square/blue.png",
     vy: 1
     }
