@@ -2,7 +2,19 @@ def init args
   args.state.dragons = []
 end
 
+def separation dragon, dragons, min
+  too_close = dragons.select{|d| d != dragon and Geometry.distance(dragon, d) <= min}
+  desired_direction = 0
+  too_close.each do |d|
+    desired_direction += Geometry.angle_from(d, dragon)
+  end
+  if desired_direction != 0
+    dragon.angle = desired_direction
+  end
+end
+
 def process dragon, dragons
+  separation dragon, dragons, 100
   return dragon
 end
 
