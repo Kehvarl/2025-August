@@ -10,17 +10,35 @@ def separation dragon, dragons, min
   end
   if desired_direction != 0
     dragon.angle = desired_direction
+    return true
   end
+  return false
+end
+
+def direction dragon, dragons, range
+  nearby = dragons.select{|d| d != dragon and Geometry.distance(dragon, d) <= range}
+  angles = []
+  nearby.each do |d|
+    angles << d.angle
+  end
+  if nearby.size > 0
+    dragon.angle = angles.sum / angles.size
+    return true
+  end
+  return false
 end
 
 def process dragon, dragons
-  separation dragon, dragons, 100
+  if not separation(dragon, dragons, 100)
+    direction(dragon, dragons, 400)
+  end
   return dragon
 end
 
 def new_dragon
   {
     x: rand(1280), y: rand(720), w: 32, h: 24,
+    angle: 0,
     path: "sprites/misc/dragon-0.png"
     }
 end
