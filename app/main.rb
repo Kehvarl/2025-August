@@ -6,17 +6,17 @@ def separation dragon, dragons, min
   too_close = dragons.select{|d| d != dragon and Geometry.distance(dragon, d) <= min}
   desired_direction = 0
   too_close.each do |d|
-    desired_direction += Geometry.angle_from(d, dragon)
+    desired_direction += Geometry.angle_to(d, dragon)
   end
   if desired_direction != 0
-    dragon.angle = desired_direction
+    dragon.angle = 360-desired_direction
     return true
   end
   return false
 end
 
-def direction dragon, dragons, range
-  nearby = dragons.select{|d| d != dragon and Geometry.distance(dragon, d) <= range}
+def direction dragon, dragons, min, max
+  nearby = dragons.select {|d| d != dragon and Geometry.distance(dragon, d) <= max and Geometry.distance(dragon, d) > min}
   angles = []
   nearby.each do |d|
     angles << d.angle
@@ -30,9 +30,16 @@ end
 
 def process dragon, dragons
   if not separation(dragon, dragons, 100)
-    direction(dragon, dragons, 400)
+    if not direction(dragon, dragons, 100, 600)
+      dragon.angle += rand(45)
+    end
   end
+
+  a_rad = dragon.angle.to_radians()
+  dragon.x += Math.cos(a_rad) * 10
+  dragon.y += Math.sin(a_rad) * 10
   return dragon
+
 end
 
 def new_dragon
