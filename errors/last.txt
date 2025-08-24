@@ -1,6 +1,10 @@
-* EXCEPTION: 'direction': wrong number of arguments (3 for 4)
+* EXCEPTION:
+* ERROR:
+Undefined method d for main.
+
+
 ** Backtrace:
-*** app/main.rb:18:in direction
-*** app/main.rb:33:in process
-*** app/main.rb:60:in tick
-*** app/main.rb:60:in tick
+*** app/main.rb:42:in group
+*** app/main.rb:51:in process
+*** app/main.rb:79:in tick
+*** app/main.rb:79:in tick

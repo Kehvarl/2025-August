@@ -28,10 +28,27 @@ def direction dragon, dragons, min, max
   return false
 end
 
+def group dragon, dragons, min, max
+  nearby = dragons.select {|d| d != dragon and Geometry.distance(dragon, d) <= max and Geometry.distance(dragon, d) > min}
+  x = []
+  y = []
+  nearby.each do |d|
+    x << d.x
+    y << d.y
+  end
+  if nearby.size > 0
+    to_x = x.sum / x.size
+    to_y = y.sum / y.size
+    dragon.angle = Geometry.angle_to({x: to_x, y: to_y}, dragon)
+    return true
+  end
+  return false
+end
+
 def process dragon, dragons
   if not separation(dragon, dragons, 100)
     if not direction(dragon, dragons, 100, 600)
-      dragon.angle += rand(45)
+      group(dragon, dragons, 100, 800)
     end
   end
 
@@ -60,6 +77,7 @@ def tick args
   end
 
   args.state.dragons = args.state.dragons.map{|d| process(d, args.state.dragons)}
+  args.state.dragons = args.state.dragons.select{|d| d.x > 0 and d.x < 1280 and d.y> 0 and d.y < 720}
 
   args.outputs.primitives << args.state.dragons
 
