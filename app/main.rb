@@ -47,8 +47,8 @@ end
 
 def process dragon, dragons
   if not separation(dragon, dragons, 100)
-    if not direction(dragon, dragons, 100, 600)
-      group(dragon, dragons, 100, 800)
+    if not direction(dragon, dragons, 100, 400)
+      group(dragon, dragons, 400, 800)
     end
   end
 
