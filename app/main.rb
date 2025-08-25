@@ -9,7 +9,7 @@ def separation dragon, dragons, min
     desired_direction += Geometry.angle_to(d, dragon)
   end
   if desired_direction != 0
-    dragon.angle = 360-desired_direction
+    dragon.desired_direction = 360-desired_direction
     return true
   end
   return false
@@ -22,7 +22,8 @@ def direction dragon, dragons, min, max
     angles << d.angle
   end
   if nearby.size > 0
-    dragon.angle = angles.sum / angles.size
+    dragon.desired_direction += angles.sum / angles.size
+    dragon.desired_direction = dragon.desired_direction / 2
     return true
   end
   return false
@@ -39,30 +40,39 @@ def group dragon, dragons, min, max
   if nearby.size > 0
     to_x = x.sum / x.size
     to_y = y.sum / y.size
-    dragon.angle = Geometry.angle_to({x: to_x, y: to_y}, dragon)
+    dragon.desired_direction += Geometry.angle_to({x: to_x, y: to_y}, dragon)
+    dragon.desired_direction = dragon.desired_direction / 2
     return true
   end
   return false
 end
 
 def process dragon, dragons
-  if not separation(dragon, dragons, 100)
-    if not direction(dragon, dragons, 100, 400)
-      group(dragon, dragons, 400, 800)
-    end
+  if Geometry.distance(dragon, {x:640, y:360}) > 5
+    dragon.desired_direction = Geometry.angle_to(dragon, {x:640, y:360})
+  else
+    separation(dragon, dragons, 100)
+    direction(dragon, dragons, 0, 640)
+    group(dragon, dragons, 0, 1280)
+  end
+  if dragon.angle < dragon.desired_direction
+    dragon.angle += [5, dragon.desired_direction - dragon.angle].min()
+  else
+    dragon.angle -= [5, dragon.angle - dragon.desired_direction].min()
   end
 
   a_rad = dragon.angle.to_radians()
-  dragon.x += Math.cos(a_rad) * 10
-  dragon.y += Math.sin(a_rad) * 10
+  dragon.x += Math.cos(a_rad) * 5
+  dragon.y += Math.sin(a_rad) * 5
   return dragon
 
 end
 
 def new_dragon
+  rand_a = rand(359)
   {
     x: rand(1280), y: rand(720), w: 32, h: 24,
-    angle: 0,
+    angle: rand_a, desired_direction: rand_a,
     path: "sprites/misc/dragon-0.png"
     }
 end
@@ -72,7 +82,7 @@ def tick args
     init(args)
   end
 
-  if args.inputs.keyboard.space or args.inputs.mouse.button_left
+  if args.inputs.keyboard.space or args.inputs.mouse.button_left or args.state.dragons.size < 15
     args.state.dragons << new_dragon
   end
 
