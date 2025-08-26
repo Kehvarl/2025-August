@@ -23,7 +23,6 @@ def direction dragon, dragons, min, max
   end
   if nearby.size > 0
     dragon.desired_direction += angles.sum / angles.size
-    dragon.desired_direction = dragon.desired_direction / 2
     return true
   end
   return false
@@ -47,9 +46,9 @@ def group dragon, dragons, min, max
   return false
 end
 
-def process dragon, dragons
+def process dragon, dragons, args
   if Geometry.distance(dragon, {x:640, y:360}) > 5
-    dragon.desired_direction = Geometry.angle_to(dragon, {x:640, y:360})
+    dragon.desired_direction = Geometry.angle_to(dragon, args.inputs.mouse)
   else
     separation(dragon, dragons, 100)
     direction(dragon, dragons, 0, 640)
@@ -86,7 +85,7 @@ def tick args
     args.state.dragons << new_dragon
   end
 
-  args.state.dragons = args.state.dragons.map{|d| process(d, args.state.dragons)}
+  args.state.dragons = args.state.dragons.map{|d| process(d, args.state.dragons, args)}
   args.state.dragons = args.state.dragons.select{|d| d.x > 0 and d.x < 1280 and d.y> 0 and d.y < 720}
 
   args.outputs.primitives << args.state.dragons
