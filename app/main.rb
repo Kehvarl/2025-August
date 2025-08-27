@@ -46,6 +46,7 @@ def group dragon, dragons, min, max
   return false
 end
 
+#Better design would be to get a vector from each rule and apply them with weights.S
 def process dragon, dragons, args
   if Geometry.distance(dragon, {x:640, y:360}) > 5
     dragon.desired_direction = Geometry.angle_to(dragon, args.inputs.mouse)
