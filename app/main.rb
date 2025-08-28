@@ -8,11 +8,8 @@ def separation dragon, dragons, min
   too_close.each do |d|
     desired_direction += Geometry.angle_to(d, dragon)
   end
-  if desired_direction != 0
-    dragon.desired_direction = 360-desired_direction
-    return true
-  end
-  return false
+
+  360-desired_direction
 end
 
 def direction dragon, dragons, min, max
@@ -22,10 +19,9 @@ def direction dragon, dragons, min, max
     angles << d.angle
   end
   if nearby.size > 0
-    dragon.desired_direction += angles.sum / angles.size
-    return true
+    return angles.sum / angles.size
   end
-  return false
+  return 0
 end
 
 def group dragon, dragons, min, max
@@ -39,31 +35,33 @@ def group dragon, dragons, min, max
   if nearby.size > 0
     to_x = x.sum / x.size
     to_y = y.sum / y.size
-    dragon.desired_direction += Geometry.angle_to({x: to_x, y: to_y}, dragon)
-    dragon.desired_direction = dragon.desired_direction / 2
-    return true
+    return (Geometry.angle_to({x: to_x, y: to_y}, dragon) /2)
   end
-  return false
+  return 0
+end
+
+def a2v angle
+  a_rad = angle.to_radians()
+  return Math.cos(a_rad), Math.sin(a_rad)
 end
 
 #Better design would be to get a vector from each rule and apply them with weights.S
 def process dragon, dragons, args
-  if Geometry.distance(dragon, {x:640, y:360}) > 5
-    dragon.desired_direction = Geometry.angle_to(dragon, args.inputs.mouse)
-  else
-    separation(dragon, dragons, 100)
-    direction(dragon, dragons, 0, 640)
-    group(dragon, dragons, 0, 1280)
-  end
+
+  x1,y1 = 0,0 # a2v(Geometry.angle_to(dragon, args.inputs.mouse))
+  x2,y2 = a2v(separation(dragon, dragons, 100))
+  x3,y3 = a2v(direction(dragon, dragons, 0, 640))
+  x4,y4 = a2v(group(dragon, dragons, 0, 1280))
+
   if dragon.angle < dragon.desired_direction
     dragon.angle += [5, dragon.desired_direction - dragon.angle].min()
   else
     dragon.angle -= [5, dragon.angle - dragon.desired_direction].min()
   end
 
-  a_rad = dragon.angle.to_radians()
-  dragon.x += Math.cos(a_rad) * 5
-  dragon.y += Math.sin(a_rad) * 5
+  dragon.x += ((x1+x2+x3+x4) * 5)
+  dragon.y += ((y1+y2+y3+y4) * 5)
+
   return dragon
 
 end
