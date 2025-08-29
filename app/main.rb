@@ -1,5 +1,44 @@
+class Rule
+  attr_accessor :vx, :vy
+  def initialize
+    @vx = 0
+    @vy = 0
+  end
+
+  def a2v angle
+    a_rad = angle.to_radians()
+    return Math.cos(a_rad), Math.sin(a_rad)
+  end
+
+  def process dragon, dragons, range_min, range_max
+    return {x: @vx, y: @vy}
+  end
+end
+
+class Separate < Rule
+  def initialize (min)
+    super()
+    @min = min
+  end
+
+  def process dragon, dragons
+    too_close = dragons.select{|d| d != dragon and Geometry.distance(dragon, d) <= @min}
+    too_close.each do |d|
+      dx, dy = a2v(Geometry.angle_from(d, dragon))
+      @vx += dx
+      @vy += dy
+    end
+    if too_close.size > 0
+      @vx /= too_close.size()
+      @vy /= too_close.size()
+    end
+    return {x: @vx, y: @vy}
+  end
+end
+
 def init args
   args.state.dragons = []
+  args.state.separate = Separate.new(100)
 end
 
 def separation dragon, dragons, min
@@ -49,7 +88,7 @@ end
 def process dragon, dragons, args
 
   x1,y1 = 0,0 # a2v(Geometry.angle_to(dragon, args.inputs.mouse))
-  x2,y2 = a2v(separation(dragon, dragons, 100))
+  s2 = args.state.separate.process(dragon, dragons)#a2v(separation(dragon, dragons, 100))
   x3,y3 = a2v(direction(dragon, dragons, 0, 640))
   x4,y4 = a2v(group(dragon, dragons, 0, 1280))
 
@@ -59,8 +98,8 @@ def process dragon, dragons, args
     dragon.angle -= [5, dragon.angle - dragon.desired_direction].min()
   end
 
-  dragon.x += ((x1+x2+x3+x4) * 5)
-  dragon.y += ((y1+y2+y3+y4) * 5)
+  dragon.x += ((x1+s2.x+x3+x4) * 5)
+  dragon.y += ((y1+s2.y+y3+y4) * 5)
 
   return dragon
 

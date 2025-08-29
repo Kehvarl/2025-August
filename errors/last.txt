@@ -1,9 +1,18 @@
 * EXCEPTION:
-* ERROR:
-Undefined method y4 for main.
+* ERROR - :x method missing on ~NilClass~.
+
+#+begin_src ~NilClass#inspect~
+nil
+#+end_src ~NilClass#inspect~
 
 
+
+The method named
+  :x
+doesn't exist on [NilClass, NilClassFalseClass].
+
+(suggestions above)
 ** Backtrace:
-*** app/main.rb:63:in process
-*** app/main.rb:87:in tick
-*** app/main.rb:87:in tick
+*** app/main.rb:101:in process
+*** app/main.rb:126:in tick
+*** app/main.rb:126:in tick
