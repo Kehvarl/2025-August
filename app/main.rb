@@ -16,13 +16,13 @@ class Rule
 end
 
 class Separate < Rule
-  def initialize (min)
+  def initialize (max)
     super()
-    @min = min
+    @max = max
   end
 
   def process dragon, dragons
-    too_close = dragons.select{|d| d != dragon and Geometry.distance(dragon, d) <= @min}
+    too_close = dragons.select{|d| d != dragon and Geometry.distance(dragon, d) <= @max}
     too_close.each do |d|
       dx, dy = a2v(Geometry.angle_from(d, dragon))
       @vx += dx
@@ -36,19 +36,35 @@ class Separate < Rule
   end
 end
 
+class Align < Rule
+  def initialize (min, max)
+    super()
+    @min = min
+    @max = max
+  end
+
+  def process dragon, dragons
+    nearby = dragons.select{|d| d != dragon and
+                            Geometry.distance(dragon, d) > @min and
+                           Geometry.distance(dragon, d) <= @max}
+    nearby.each do |d|
+      dx, dy = a2v(d.angle)
+      @vx += dx
+      @vy += dy
+    end
+    if nearby.size > 0
+      @vx /= nearby.size()
+      @vy /= nearby.size()
+    end
+    return {x: @vx, y: @vy}
+  end
+end
+
+
 def init args
   args.state.dragons = []
   args.state.separate = Separate.new(100)
-end
-
-def separation dragon, dragons, min
-  too_close = dragons.select{|d| d != dragon and Geometry.distance(dragon, d) <= min}
-  desired_direction = 0
-  too_close.each do |d|
-    desired_direction += Geometry.angle_to(d, dragon)
-  end
-
-  360-desired_direction
+  args.state.align = Align.new(0, 640)
 end
 
 def direction dragon, dragons, min, max
@@ -89,7 +105,7 @@ def process dragon, dragons, args
 
   x1,y1 = 0,0 # a2v(Geometry.angle_to(dragon, args.inputs.mouse))
   s2 = args.state.separate.process(dragon, dragons)#a2v(separation(dragon, dragons, 100))
-  x3,y3 = a2v(direction(dragon, dragons, 0, 640))
+  s3 = args.state.align.process(dragon, dragons)#x3,y3 = a2v(direction(dragon, dragons, 0, 640))
   x4,y4 = a2v(group(dragon, dragons, 0, 1280))
 
   if dragon.angle < dragon.desired_direction
@@ -98,8 +114,8 @@ def process dragon, dragons, args
     dragon.angle -= [5, dragon.angle - dragon.desired_direction].min()
   end
 
-  dragon.x += ((x1+s2.x+x3+x4) * 5)
-  dragon.y += ((y1+s2.y+y3+y4) * 5)
+  dragon.x += ((x1+s2.x+s3.x+x4) * 5)
+  dragon.y += ((y1+s2.y+s3.y+y4) * 5)
 
   return dragon
 
