@@ -63,29 +63,39 @@ class Align < Rule
   end
 end
 
+class Group < Rule
+  def initialize (min, max)
+    super()
+    @min = min
+    @max = max
+  end
+
+  def process dragon, dragons
+    x = []
+    y = []
+    nearby = dragons.select{|d| d != dragon and
+                            Geometry.distance(dragon, d) > @min and
+                           Geometry.distance(dragon, d) <= @max}
+    nearby.each do |d|
+      x << d.x
+      y << d.y
+    end
+    if nearby.size > 0
+      @vx = x.sum/x.size
+      @vy = y.sum/y.size
+    end
+    return {x: @vx, y: @vy}
+  end
+end
+
 
 def init args
   args.state.dragons = []
   args.state.rules = [
     Separate.new(200),
-    Align.new(0, 400)
+    Align.new(0, 400),
+    Group.new(0,1280)
   ]
-end
-
-def group dragon, dragons, min, max
-  nearby = dragons.select {|d| d != dragon and Geometry.distance(dragon, d) <= max and Geometry.distance(dragon, d) > min}
-  x = []
-  y = []
-  nearby.each do |d|
-    x << d.x
-    y << d.y
-  end
-  if nearby.size > 0
-    to_x = x.sum / x.size
-    to_y = y.sum / y.size
-    return (Geometry.angle_to({x: to_x, y: to_y}, dragon) /2)
-  end
-  return 0
 end
 
 def a2v angle
@@ -102,9 +112,6 @@ def process dragon, dragons, args
     vx += s.x
     vy += s.y
   end
-  x4,y4 = a2v(group(dragon, dragons, 0, 1280))
-  vx += x4
-  vy += y4
 
   desired_angle = Math.atan2(vy, vx).to_degrees
   dragon.desired_direction = desired_angle + (rand(10) - 20)
@@ -136,7 +143,7 @@ def tick args
     init(args)
   end
 
-  if args.inputs.keyboard.space or args.inputs.mouse.button_left or args.state.dragons.size < 40
+  if args.inputs.keyboard.space or args.inputs.mouse.button_left or args.state.dragons.size < 25
     args.state.dragons << new_dragon
   end
 
