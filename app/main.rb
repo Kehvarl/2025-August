@@ -114,19 +114,15 @@ def process dragon, dragons, args
   end
 
   desired_angle = Math.atan2(vy, vx).to_degrees
-  dragon.desired_direction = desired_angle + (rand(10) - 20)
-  if dragon.angle < dragon.desired_direction
-    dragon.angle += [5, dragon.desired_direction - dragon.angle].min()
-  else
-    dragon.angle -= [5, dragon.angle - dragon.desired_direction].min()
-  end
+  dragon.desired_direction = desired_angle + (rand(21) - 10)
+  diff = ((dragon.desired_direction - dragon.angle + 180) % 360) - 180
+  dragon.angle += diff.clamp(-5, 5)
   vx, vy = a2v(dragon.angle)
 
   dragon.x += vx
   dragon.y += vy
 
   return dragon
-
 end
 
 def new_dragon
