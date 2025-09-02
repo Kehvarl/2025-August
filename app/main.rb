@@ -143,7 +143,7 @@ def tick args
     args.state.dragons << new_dragon
   end
 
-  args.state.dragons = args.state.dragons.map{|d| process(d, args.state.dragons, args)}
+  args.state.dragons = args.state.dragons.each{|d| process(d, args.state.dragons, args)}
   args.state.dragons = args.state.dragons.select{|d| d.x > 0 and d.x < 1280 and d.y> 0 and d.y < 720}
 
   args.outputs.primitives << args.state.dragons
